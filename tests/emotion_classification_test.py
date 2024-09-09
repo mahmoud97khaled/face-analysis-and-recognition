@@ -79,5 +79,5 @@ model_path = 'res34_res34.pth'
 photo = cv2.imread(image_path)
 
 
-predicted_emotion, confidence = predict(img_tensor, device)
+predicted_emotion, confidence = predict(photo, device)
 print(f"Predicted Emotion: {predicted_emotion}, Confidence: {confidence:.2f}")
