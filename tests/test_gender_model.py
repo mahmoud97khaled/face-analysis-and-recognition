@@ -1,3 +1,5 @@
+
+print('hegllo')
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -21,9 +23,7 @@ def load_model(model_path, device):
     model.eval()  # Set the model to evaluation mode
     return model
 
-def preprocess_image(photo_path):
-    # Load and preprocess the image using OpenCV
-    image = cv2.imread(photo_path)
+def preprocess_image(image):
     
     # Convert BGR (OpenCV default) to RGB
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -40,11 +40,11 @@ def preprocess_image(photo_path):
     image = image.unsqueeze(0)  # Add batch dimension
     return image
 
-def predict(photo_path, model, device):
+def predict(image):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = load_model('models/gender_classifier.pth', device)
     # Preprocess the image
-    image = preprocess_image(photo_path)
+    image = preprocess_image(image)
     image = image.to(device)  # Move to device
     
     # Perform inference
@@ -59,5 +59,9 @@ def predict(photo_path, model, device):
         print(f'Prediction: Female, Probability: {probability:.4f}')
     else:
         print(f'Prediction: Male, Probability: {1 - probability:.4f}')
-    
 
+
+image_path = "/Users/Tata/face-analysis-and-recognition/face-analysis-and-recognition/raw/archive (4)/Training/female/131422.jpg.jpg"
+image = cv2.imread(image_path)
+predict(image)
+print('hegllo')

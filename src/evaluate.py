@@ -5,7 +5,6 @@ from torch.utils.data import DataLoader, Dataset
 import torchvision.transforms as transforms
 from torchvision import models
 from sklearn.metrics import accuracy_score
-import cv2
 import os
 from tqdm import tqdm
 import numpy as np
