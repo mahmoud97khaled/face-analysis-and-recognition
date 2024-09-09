@@ -32,12 +32,6 @@ def load_model(model_path, device):
 def preprocess_image(image):
 
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    model = load_model(model_path, device)
-
-
-    img_tensor = preprocess_image(photo)
-
     
 
     image = image.astype(np.float32) / 255.0
@@ -55,7 +49,11 @@ def preprocess_image(image):
     return img_tensor
 
 
-def predict(model, img_tensor, device):
+def predict(img_tensor, device):
+    model = load_model(model_path, device)
+    img_tensor = preprocess_image(photo)
+
+    
     img_tensor = img_tensor.to(device)
 
 
@@ -81,6 +79,5 @@ model_path = 'res34_res34.pth'
 photo = cv2.imread(image_path)
 
 
-
-predicted_emotion, confidence = predict(model, img_tensor, device)
+predicted_emotion, confidence = predict(img_tensor, device)
 print(f"Predicted Emotion: {predicted_emotion}, Confidence: {confidence:.2f}")
