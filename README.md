@@ -56,3 +56,5 @@ ml_models_project/
 This structure provides a clear separation of models, data, source code, and notebooks for each model category. The `main.py` file serves as the entry point for the project, and the `README.md` file contains additional information about the project.
 
 Gender classification model weight: https://drive.google.com/file/d/1hUkosxgyZp7sEhhUv4c_J-bxmkXf1vGZ/view?usp=drive_link
+
+emotion weight file : https://drive.google.com/file/d/1rVqZSLcBtM2HDFjoCahj22pudfj_g3IA/view?usp=sharing
