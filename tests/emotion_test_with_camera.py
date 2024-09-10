@@ -33,10 +33,10 @@ while True:
 
         # Convert face from OpenCV BGR to PIL RGB for emotion prediction
         face_rgb = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
-        pil_face = Image.fromarray(face_rgb)
+        # pil_face = Image.fromarray(face_rgb)
 
         # Predict emotion using the classifier
-        predicted_emotion, confidence = classifier.predict(pil_face)
+        predicted_emotion, confidence = classifier.predict(face_rgb)
 
         # Draw a rectangle around the face
         cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
