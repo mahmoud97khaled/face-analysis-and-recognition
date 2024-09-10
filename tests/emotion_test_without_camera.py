@@ -32,21 +32,42 @@ class EmotionDetector:
         model.eval()  
         return model
 
+    # def preprocess_image(self, image):
+    #     if isinstance(image, np.ndarray):
+    #         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    #     elif not isinstance(image, Image.Image):
+    #         raise ValueError("Input must be a PIL Image or a NumPy array.")
+        
+    #     transform_test = transforms.Compose([
+    #         transforms.Grayscale(num_output_channels=3),
+    #         transforms.Resize((224, 224)),                
+    #         transforms.ToTensor(),                      
+    #         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]) 
+    #     ])
+
+    #     img_tensor = transform_test(image).unsqueeze(0)
+    #     return img_tensor
     def preprocess_image(self, image):
+        # Convert from BGR to RGB using OpenCV
         if isinstance(image, np.ndarray):
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        elif not isinstance(image, Image.Image):
-            raise ValueError("Input must be a PIL Image or a NumPy array.")
-        
+        # Convert the image to grayscale using OpenCV (only 1 channel)
+        image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+        # Since ResNet expects 3 channels, stack the grayscale image to have 3 channels
+        image_gray_3channel = np.stack((image_gray,) * 3, axis=-1)
+
+        # Now use torchvision transforms for the rest of the preprocessing
         transform_test = transforms.Compose([
-            transforms.Grayscale(num_output_channels=3),
-            transforms.Resize((224, 224)),                
-            transforms.ToTensor(),                      
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]) 
+            transforms.ToTensor(),  # Convert to a PyTorch tensor
+            transforms.Resize((224, 224)),  # Resize to 224x224
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])  # Normalize
         ])
 
-        img_tensor = transform_test(image).unsqueeze(0)
+        # Apply the transformations
+        img_tensor = transform_test(image_gray_3channel).unsqueeze(0)  # Add batch dimension
         return img_tensor
 
     def predict(self, image):
