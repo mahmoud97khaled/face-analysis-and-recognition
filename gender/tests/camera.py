@@ -1,52 +1,102 @@
 import cv2
 from PIL import Image
 import numpy as np
-import torch
 from gender_test import GenderClassifier  # Import your gender classifier
 
-# Initialize the gender classifier (assuming the model is in 'models/gender_classifier.pth')
-classifier = GenderClassifier(model_path='models/gender_classifier.pth')
+# Load the pre-trained Haar Cascade face detection model
+def get_images():
+    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-# Initialize the camera
-camera = cv2.VideoCapture(0)
+    # Initialize the gender classifier
+    classifier = GenderClassifier(model_path='/Users/Tata/face-analysis-and-recognition/face-analysis-and-recognition/gender/models/gender_classifier.pth')
 
-while True:
-    # Capture frame-by-frame
-    ret, frame = camera.read()
+    # Initialize the camera
+    camera = cv2.VideoCapture(0)
 
-    if not ret:
-        print("Failed to grab frame")
-        break
+    while True:
+        images = []
+        # Capture frame-by-frame
+        ret, frame = camera.read()
 
-    # Convert frame from OpenCV BGR to PIL RGB
-    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    pil_image = Image.fromarray(frame_rgb)
+        if not ret:
+            print("Failed to grab frame")
+            break
 
-    # Predict gender using the classifier
-    prediction = classifier.predict(pil_image)
+        # Convert frame to grayscale for face detection
+        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    # Convert the PIL image back to OpenCV format (numpy array)
-    frame = np.array(pil_image)
+        # # Detect faces in the frame
+        faces = face_cascade.detectMultiScale(gray_frame, scaleFactor=1.1, minNeighbors=5, minSize=(100, 100))
+        # # Detect faces in the frame with more focused parameters
+        # faces = face_cascade.detectMultiScale(gray_frame, scaleFactor=1.05, minNeighbors=4, minSize=(80, 80))
 
-    # Convert frame back to BGR for OpenCV display
-    frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
-    # Add prediction text to the frame
-    if prediction > 0.5:
-        gender_text = f'Prediction: Female ({prediction:.2f})'
-    else:
-        gender_text = f'Prediction: Male ({1 - prediction:.2f})'
+        # If no face is detected, just show the frame
+        if len(faces) == 0:
+            cv2.imshow("Live Gender Prediction", frame)
+        else:
+            # Loop over all detected faces (usually one face in most cases)
+            for (x, y, w, h) in faces:
+                # Extract the face region from the frame
+                face_frame = frame[y:y+h, x:x+w]
 
-    # Add text on the frame
-    cv2.putText(frame_bgr, gender_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                # Resize the face region to a consistent size (e.g., 224x224)
+                face_resized = cv2.resize(face_frame, (128, 128))
 
-    # Display the camera feed with prediction text
-    cv2.imshow("Live Gender Prediction", frame_bgr)
+                # Convert the face frame from OpenCV BGR to PIL RGB
+                face_rgb = cv2.cvtColor(face_frame, cv2.COLOR_BGR2RGB)
+                pil_image = Image.fromarray(face_rgb)
+                images.append(pil_image)
 
-    # Break the loop if 'q' is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+                # Predict gender using the classifier
+                # prediction = classifier.predict(pil_image)
+                prediction = classifier.predict(pil_image)
 
-# Release the camera and close any open windows
-camera.release()
-cv2.destroyAllWindows()
+                # # Add prediction text to the frame
+                if prediction > 0.5:
+                    gender_text = f'Prediction: Female ({prediction:.2f})'
+                else:
+                    gender_text = f'Prediction: Male ({1 - prediction:.2f})'
+
+                # Draw a rectangle around the face and add the text
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                cv2.putText(frame, gender_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 255), 2)
+
+            # Display the frame with face detection and prediction
+            cv2.imshow("Live Gender Prediction", frame)
+
+        # Break the loop if 'q' is pressed
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    # Release the camera and close any open windows
+    camera.release()
+    cv2.destroyAllWindows()
+    male_count = 0
+    female_count = 0
+    
+
+    for image_path in images:
+        # count += 1
+        # print(count)
+
+        # # Open image
+        # image = Image.open(image_path)
+
+        # # Predict gender using the classifier
+        # prediction = classifier.predict(image)
+        prediction = classifier.predict(image_path)
+
+
+        if prediction > 0.5:
+                print(f'Prediction: Female ({prediction:.2f})')
+                female_count += 1
+        else:
+            print(f'Prediction: Male ({1 - prediction:.2f})')
+            male_count += 1
+        # # Optionally show the image (remove or comment this if you don't want to open each image)
+        image_path.show()
+        print(male_count,female_count)
+        
+
+get_images()
