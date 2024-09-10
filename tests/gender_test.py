@@ -68,4 +68,3 @@ if __name__ == "__main__":
     else:
         print(f'Prediction: Male ({1 - prediction:.2f})')
     
-    image.imshow()

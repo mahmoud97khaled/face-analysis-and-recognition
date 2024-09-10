@@ -72,3 +72,4 @@ def get_images():
     # Release the camera and close any open windows
     camera.release()
     cv2.destroyAllWindows()
+get_images()
