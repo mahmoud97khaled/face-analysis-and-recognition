@@ -41,19 +41,19 @@ def get_images():
                 face_frame = frame[y:y+h, x:x+w]
 
                 # Resize the face region to a consistent size (e.g., 224x224)
-                face_resized = cv2.resize(face_frame, (128, 128))
+                # face_resized = cv2.resize(face_frame, (128, 128))
 
                 # Convert the face frame from OpenCV BGR to PIL RGB
                 face_rgb = cv2.cvtColor(face_frame, cv2.COLOR_BGR2RGB)
-                pil_image = Image.fromarray(face_rgb)
-                images.append(pil_image)
+                images.append(face_rgb)
 
-                # Predict gender using the classifier
-                # prediction = classifier.predict(pil_image)
-                prediction = classifier.predict(pil_image)
+                prediction = classifier.predict(face_rgb)
 
                 # # Add prediction text to the frame
-                if prediction > 0.5:
+                if 0.3< prediction < 0.7:
+                    gender_text = f'Prediction : ------'
+
+                elif prediction > 0.5:
                     gender_text = f'Prediction: Female ({prediction:.2f})'
                 else:
                     gender_text = f'Prediction: Male ({1 - prediction:.2f})'
@@ -72,31 +72,3 @@ def get_images():
     # Release the camera and close any open windows
     camera.release()
     cv2.destroyAllWindows()
-    male_count = 0
-    female_count = 0
-    
-
-    for image_path in images:
-        # count += 1
-        # print(count)
-
-        # # Open image
-        # image = Image.open(image_path)
-
-        # # Predict gender using the classifier
-        # prediction = classifier.predict(image)
-        prediction = classifier.predict(image_path)
-
-
-        if prediction > 0.5:
-                print(f'Prediction: Female ({prediction:.2f})')
-                female_count += 1
-        else:
-            print(f'Prediction: Male ({1 - prediction:.2f})')
-            male_count += 1
-        # # Optionally show the image (remove or comment this if you don't want to open each image)
-        image_path.show()
-        print(male_count,female_count)
-        
-
-get_images()

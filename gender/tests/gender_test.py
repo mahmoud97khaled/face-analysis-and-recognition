@@ -21,18 +21,24 @@ class GenderClassifier:
         model.load_state_dict(torch.load(model_path, map_location=self.device))
         model.eval()
         return model
-
     def preprocess_image(self, image):
-        if image.mode != "RGB":
-            image = image.convert("RGB")
+        # If the input is a NumPy array (OpenCV image), it will already be in BGR format
+        if isinstance(image, np.ndarray):
+            # Convert from BGR (OpenCV format) to RGB
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
+        # OpenCV image (NumPy array) preprocessing without converting to PIL
+        # Convert NumPy array to PyTorch tensor (use the same transformations as training)
         transform = transforms.Compose([
-            transforms.Resize((80, 80)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            transforms.ToTensor(),  # Convert NumPy array (HWC) to PyTorch tensor (CHW)
+            transforms.Resize((80, 80)),  # Resize to the expected input size
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalize
         ])
 
+        # Apply the transformations
         image = transform(image)
+
+        # Add batch dimension (for single image prediction)
         image = image.unsqueeze(0)
         return image
 
@@ -49,48 +55,9 @@ class GenderClassifier:
         
 
 
-if __name__ == "__main__":
-    # def get_limited_image_paths_and_labels(folder_path, label, limit):
-    #     image_paths = [os.path.join(folder_path, filename) for filename in os.listdir(folder_path)[:limit]]
-    #     labels = [label] * len(image_paths)
-    #     return image_paths
-    # # /Users/Tata/face-analysis-and-recognition/face-analysis-and-recognition/gender/raw/archive (4)/Validation
-    # image_folder_path = '/Users/Tata/face-analysis-and-recognition/face-analysis-and-recognition/gender/raw/archive (4)/Validation'
-    # female_folder_path = os.path.join(image_folder_path, 'female')
-    # female_image_paths = get_limited_image_paths_and_labels(female_folder_path, label=1, limit=2000)
-    
-    # # Initialize the classifier
-    # classifier = GenderClassifier(model_path='/Users/Tata/face-analysis-and-recognition/face-analysis-and-recognition/gender/models/gender_classifier.pth')
-    
-    # count = 0
-    # male_count = 0
-    # female_count = 0
-    # images = get_images()
-
-    # for image_path in images:
-    #     # count += 1
-    #     # print(count)
-
-    #     # # Open image
-    #     # image = Image.open(image_path)
-
-    #     # # Predict gender using the classifier
-    #     # prediction = classifier.predict(image)
-    #     prediction = classifier.predict(image_path)
-
-
-    #     if prediction > 0.5:
-    #             print(f'Prediction: Female ({prediction:.2f})')
-    #             female_count += 1
-    #     else:
-    #         print(f'Prediction: Male ({1 - prediction:.2f})')
-    #         male_count += 1
-    #     # # Optionally show the image (remove or comment this if you don't want to open each image)
-    #     # image.show()
-    # print(male_count,female_count)
-    
-    image_path = "/Users/Tata/face-analysis-and-recognition/face-analysis-and-recognition/Screen Shot 2024-09-10 at 3.19.17 AM.png"
-    image = Image.open(image_path)
+if __name__ == "__main__": 
+    image_path = "/Users/Tata/face-analysis-and-recognition/face-analysis-and-recognition/Screen Shot 2024-09-10 at 3.26.01 AM.png"
+    image = cv2.imread(image_path)
     
     classifier = GenderClassifier(model_path='/Users/Tata/face-analysis-and-recognition/face-analysis-and-recognition/gender/models/gender_classifier.pth')
     
@@ -101,4 +68,4 @@ if __name__ == "__main__":
     else:
         print(f'Prediction: Male ({1 - prediction:.2f})')
     
-    image.show()
+    image.imshow()
